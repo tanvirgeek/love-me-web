@@ -1,5 +1,13 @@
-import Image from "next/image";
+import { Button } from "@nextui-org/react";
+import { GoSmiley } from "react-icons/go";
 
 export default function Home() {
-  return <div>Hello Love Me</div>;
+  return (
+    <div>
+      <h1 className="text-red-600">Hello World</h1>
+      <Button color="danger" variant="bordered" startContent={<GoSmiley />}>
+        Click Me
+      </Button>
+    </div>
+  );
 }
