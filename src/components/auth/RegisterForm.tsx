@@ -1,12 +1,20 @@
 "use client";
 import { Button, Card, CardBody, CardHeader, Input } from "@nextui-org/react";
-import React from "react";
+import React, { useState } from "react";
+import { auth } from "@/lib/firebase/firebase";
 import { GiPadlock } from "react-icons/gi";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/RegisterSchema";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { IoEye } from "react-icons/io5";
+import { IoEyeOff } from "react-icons/io5";
 
 const RegisterForm = () => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -16,8 +24,39 @@ const RegisterForm = () => {
     mode: "onTouched",
   });
 
-  const onsubmit = (data: RegisterSchema) => {
+  const onsubmit = async (data: RegisterSchema) => {
     console.log(data);
+    setErrorMessage(null);
+    setMessage(null);
+
+    if (data.password !== data.confirmPassword) {
+      setErrorMessage("Password do not match");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const user = userCredential.user;
+      // await sendEmailVerification(user);
+      localStorage.setItem("registrationData", JSON.stringify(data));
+      setMessage(
+        "Registration successful! Plase check your email for verification."
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes("email-already-in-use")) {
+          setErrorMessage("Email Already Exits");
+        } else {
+          setErrorMessage(error.message);
+        }
+      } else {
+        setErrorMessage("An unknown errr occured");
+      }
+    }
   };
 
   return (
@@ -51,16 +90,53 @@ const RegisterForm = () => {
               isInvalid={!!errors.email}
               errorMessage={errors.email?.message as string}
             />
-            <Input
-              defaultValue=""
-              label="Password"
-              type="password"
-              variant="bordered"
-              placeholder="Enter your password"
-              {...register("password")}
-              isInvalid={!!errors.password}
-              errorMessage={errors.password?.message as string}
-            />
+
+            <div>
+              {/* Password Input */}
+              <div className="relative mb-4">
+                <Input
+                  defaultValue=""
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  variant="bordered"
+                  placeholder="Enter your password"
+                  isInvalid={!!errors.password}
+                  errorMessage={errors.password?.message as string}
+                  {...register("password")}
+                />
+                <Button
+                  onPress={() => setShowPassword((prev) => !prev)}
+                  className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-transparent"
+                >
+                  {showPassword ? <IoEyeOff size={18} /> : <IoEye size={18} />}
+                </Button>
+              </div>
+
+              {/* Confirm Password Input */}
+              <div className="relative">
+                <Input
+                  defaultValue=""
+                  label="Confirm Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  variant="bordered"
+                  placeholder="Confirm your password"
+                  isInvalid={!!errors.confirmPassword}
+                  errorMessage={errors.confirmPassword?.message as string}
+                  {...register("confirmPassword")}
+                />
+                <Button
+                  onPress={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-transparent"
+                >
+                  {showConfirmPassword ? (
+                    <IoEyeOff size={18} />
+                  ) : (
+                    <IoEye size={18} />
+                  )}
+                </Button>
+              </div>
+            </div>
+
             <Button
               fullWidth
               type="submit"
@@ -72,6 +148,9 @@ const RegisterForm = () => {
           </div>
         </form>
       </CardBody>
+
+      {message && <p className="text-green-500 px-4 py-2">{message}</p>}
+      {errorMessage && <p className="text-red-500 px-4 py-2">{errorMessage}</p>}
     </Card>
   );
 };
