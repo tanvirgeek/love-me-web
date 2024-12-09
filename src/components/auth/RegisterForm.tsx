@@ -30,7 +30,7 @@ const RegisterForm = () => {
     setMessage(null);
 
     if (data.password !== data.confirmPassword) {
-      setErrorMessage("Password do not match");
+      setErrorMessage("Passwords do not match");
       return;
     }
 
@@ -43,9 +43,7 @@ const RegisterForm = () => {
       const user = userCredential.user;
       // await sendEmailVerification(user);
       localStorage.setItem("registrationData", JSON.stringify(data));
-      setMessage(
-        "Registration successful! Plase check your email for verification."
-      );
+      setMessage("Registration successful!");
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes("email-already-in-use")) {
