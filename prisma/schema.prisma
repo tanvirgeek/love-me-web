@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  firebaseUserId String   @unique
+  name           String
+  email          String   @unique
+  role           Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // 1-to-1 Relationship
+  userInfo    UserInfo?
+  // One-to-Many: User can have many favorites
+  favorites   Favorite[] @relation("FavoritesFrom")
+  favoritedBy Favorite[] @relation("FavoritesTo")
+}
+
+model UserInfo {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  firebaseUserId    String   @unique // Foreign key to Firebase user
+  fullName          String
+  gender            String
+  dateOfBirth       DateTime
+  location          String
+  bio               String?
+  profilePictureUrl String?
+
+  // Marriage Preferences
+  preferredAgeMin   Int
+  preferredAgeMax   Int
+  preferredGender   String
+  preferredLocation String?
+  interests         String[] // Array of interests for compatibility
+
+  // Additional Optional Fields
+  attachmentStyle  Int?
+  presentAddress   String?
+  parmanentAddress String?
+  income           String? // User's income level (e.g., "50k-60k")
+  education        String? // Educational background (e.g., "Bachelor's in Engineering")
+  district         String? // User's district
+  division         String? // User's division
+  familyMembers    String[] // Array of family members' professions
+  redFlags         String[] // Array of red flags for relationships
+  books            String[] // Favorite books
+  movies           String[] // Favorite movies
+  music            String[] // Favorite music genres
+  sports           String?
+
+  // Relationship Back to User
+  user User @relation(fields: [firebaseUserId], references: [firebaseUserId])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Favorite {
+  id                 String @id @default(auto()) @map("_id") @db.ObjectId
+  userFirebaseId     String // Firebase ID of the user who adds the favorite
+  favoriteFirebaseId String // Firebase ID of the user who is favorited
+
+  // Relationships
+  user     User @relation("FavoritesFrom", fields: [userFirebaseId], references: [firebaseUserId])
+  favorite User @relation("FavoritesTo", fields: [favoriteFirebaseId], references: [firebaseUserId])
+
+  // Timestamps
+  createdAt DateTime @default(now())
+}
