@@ -79,6 +79,7 @@ const LoginForm = () => {
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
+      console.log("Google Login Success");
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
@@ -190,7 +191,7 @@ const LoginForm = () => {
             </Button>
 
             {/* Forgot Password Link */}
-            <div className="text-center mt-4">
+            <div className="text-center mt-4 flex justify-end">
               <Button
                 size="sm"
                 onClick={onOpen} // Open modal
