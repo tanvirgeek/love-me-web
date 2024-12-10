@@ -9,6 +9,7 @@ import { registerSchema, RegisterSchema } from "@/lib/schemas/RegisterSchema";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { IoEye } from "react-icons/io5";
 import { IoEyeOff } from "react-icons/io5";
+import { CreateUserInput } from "@/lib/types";
 
 const RegisterForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -42,7 +43,12 @@ const RegisterForm = () => {
       );
       const user = userCredential.user;
       // await sendEmailVerification(user);
-      localStorage.setItem("registrationData", JSON.stringify(data));
+      await createUser({
+        firebaseUserId: user.uid,
+        name: data.name,
+        email: data.email,
+      });
+
       setMessage("Registration successful!");
     } catch (error) {
       if (error instanceof Error) {
@@ -56,6 +62,24 @@ const RegisterForm = () => {
       }
     }
   };
+
+  async function createUser(data: CreateUserInput) {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await response.json();
+
+    console.log(responseData, response);
+
+    if (!response.ok) {
+      throw new Error(responseData.error);
+    }
+
+    return responseData;
+  }
 
   return (
     <Card className="w-2/5 mx-auto">
