@@ -1,7 +1,6 @@
 "use client";
 import {
   Button,
-  Link,
   Navbar,
   NavbarBrand,
   NavbarContent,
@@ -11,6 +10,8 @@ import React from "react";
 import { usePathname } from "next/navigation";
 import { GiSelfLove } from "react-icons/gi";
 import { useAuthStore } from "@/store/useAuthStore";
+import Link from "next/link";
+import UserMenu from "./UserMenu";
 
 const TopNav = () => {
   const { isAuthenticated } = useAuthStore();
@@ -84,7 +85,9 @@ const TopNav = () => {
               </Link>
             </NavbarItem>
           </NavbarContent>
-          <NavbarContent justify="end"></NavbarContent>
+          <NavbarContent justify="end">
+            <UserMenu />
+          </NavbarContent>
         </>
       )}
 

@@ -7,8 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/RegisterSchema";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { IoEye } from "react-icons/io5";
-import { IoEyeOff } from "react-icons/io5";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 import { CreateUserInput } from "@/lib/types";
 
 const RegisterForm = () => {
@@ -16,17 +15,17 @@ const RegisterForm = () => {
   const [message, setMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
-    formState: { isValid, errors },
+    formState: { isValid, errors, isSubmitting },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
   });
 
   const onsubmit = async (data: RegisterSchema) => {
-    console.log(data);
     setErrorMessage(null);
     setMessage(null);
 
@@ -53,12 +52,12 @@ const RegisterForm = () => {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes("email-already-in-use")) {
-          setErrorMessage("Email Already Exits");
+          setErrorMessage("Email Already Exists");
         } else {
           setErrorMessage(error.message);
         }
       } else {
-        setErrorMessage("An unknown errr occured");
+        setErrorMessage("An unknown error occurred");
       }
     }
   };
@@ -71,8 +70,6 @@ const RegisterForm = () => {
     });
 
     const responseData = await response.json();
-
-    console.log(responseData, response);
 
     if (!response.ok) {
       throw new Error(responseData.error);
@@ -163,9 +160,16 @@ const RegisterForm = () => {
               fullWidth
               type="submit"
               className="bg-pink-400"
-              isDisabled={!isValid}
+              isDisabled={!isValid || isSubmitting}
             >
-              Register
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <span className="loader mr-2"></span>
+                  Registering...
+                </span>
+              ) : (
+                "Register"
+              )}
             </Button>
           </div>
         </form>
