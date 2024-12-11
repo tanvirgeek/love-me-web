@@ -1,16 +1,31 @@
 "use client";
+import { auth } from "@/lib/firebase/firebase";
 import { Avatar } from "@nextui-org/react";
+import { signOut } from "firebase/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const UserMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const userImage = "https://via.placeholder.com/150"; // Replace with user's image URL or set to null if unavailable
+  const userImage = ""; // Replace with user's image URL or set to null if unavailable
+  const router = useRouter();
 
-  const handleLogout = () => {
-    // Implement your logout logic here
-    console.log("User logged out");
-    // Example: Clear authentication tokens or session
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Signs the user out of Firebase
+      console.log("User logged out");
+      window.location.reload();
+      // You can also add any additional logic here, e.g., redirecting the user
+      // Example: Redirect to login page after logout
+      // window.location.href = "/login"; // Or use Next.js routing if you prefer
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Logout error:", error.message);
+      } else {
+        console.error("Unknown error");
+      }
+    }
   };
 
   return (
@@ -21,11 +36,7 @@ const UserMenu = () => {
         as="button"
         src={userImage || undefined}
         alt="User Avatar"
-        fallback={
-          <span className="flex items-center justify-center bg-gray-300 text-gray-600 rounded-full w-full h-full">
-            U
-          </span>
-        }
+        showFallback
         onClick={() => setIsOpen(!isOpen)} // Toggle dropdown visibility
       />
 
