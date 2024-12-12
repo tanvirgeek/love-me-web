@@ -1,5 +1,13 @@
 "use client";
-import { Button, Card, CardBody, CardHeader, Input } from "@nextui-org/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
+  Select,
+  SelectItem,
+} from "@nextui-org/react";
 import React, { useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
 import { GiPadlock } from "react-icons/gi";
@@ -9,12 +17,21 @@ import { registerSchema, RegisterSchema } from "@/lib/schemas/RegisterSchema";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { CreateUserInput } from "@/lib/types";
+import DistrictSearch, { District } from "./DistrictSearch";
 
 const RegisterForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
+    null
+  );
+
+  const genders = [
+    { key: "Male", label: "Male" },
+    { key: "Female", label: "Female" },
+  ];
 
   const {
     register,
@@ -28,6 +45,11 @@ const RegisterForm = () => {
   const onsubmit = async (data: RegisterSchema) => {
     setErrorMessage(null);
     setMessage(null);
+
+    if (!selectedDistrict) {
+      setErrorMessage("Please select a district");
+      return;
+    }
 
     if (data.password !== data.confirmPassword) {
       setErrorMessage("Passwords do not match");
@@ -89,88 +111,108 @@ const RegisterForm = () => {
       </CardHeader>
       <CardBody>
         <form onSubmit={handleSubmit(onsubmit)}>
-          <div className="space-y-4">
-            <Input
-              defaultValue=""
-              label="Name"
-              variant="bordered"
-              placeholder="Enter your name"
-              {...register("name")}
-              isInvalid={!!errors.name}
-              errorMessage={errors.name?.message as string}
-            />
-            <Input
-              defaultValue=""
-              label="Email"
-              variant="bordered"
-              type="email"
-              placeholder="Enter your email"
-              {...register("email")}
-              isInvalid={!!errors.email}
-              errorMessage={errors.email?.message as string}
-            />
-
-            <div>
-              {/* Password Input */}
-              <div className="relative mb-4">
-                <Input
-                  defaultValue=""
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  variant="bordered"
-                  placeholder="Enter your password"
-                  isInvalid={!!errors.password}
-                  errorMessage={errors.password?.message as string}
-                  {...register("password")}
-                />
-                <Button
-                  onPress={() => setShowPassword((prev) => !prev)}
-                  className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-transparent"
-                >
-                  {showPassword ? <IoEyeOff size={18} /> : <IoEye size={18} />}
-                </Button>
-              </div>
-
-              {/* Confirm Password Input */}
-              <div className="relative">
-                <Input
-                  defaultValue=""
-                  label="Confirm Password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  variant="bordered"
-                  placeholder="Confirm your password"
-                  isInvalid={!!errors.confirmPassword}
-                  errorMessage={errors.confirmPassword?.message as string}
-                  {...register("confirmPassword")}
-                />
-                <Button
-                  onPress={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-transparent"
-                >
-                  {showConfirmPassword ? (
-                    <IoEyeOff size={18} />
-                  ) : (
-                    <IoEye size={18} />
-                  )}
-                </Button>
-              </div>
+          <div className="space-y-4 grid grid-cols-2 gap-2">
+            <div className="flex flex-col gap-2">
+              <DistrictSearch
+                onSelect={(district) => setSelectedDistrict(district)}
+              />
+              <Select
+                className="max-w-xs"
+                label="Your Gender"
+                placeholder="Gender"
+              >
+                {genders.map((gender) => (
+                  <SelectItem key={gender.key}>{gender.label}</SelectItem>
+                ))}
+              </Select>
             </div>
+            <div className="flex flex-col gap-2">
+              <Input
+                defaultValue=""
+                label="Name"
+                variant="bordered"
+                placeholder="Enter your name"
+                {...register("name")}
+                isInvalid={!!errors.name}
+                errorMessage={errors.name?.message as string}
+              />
+              <Input
+                defaultValue=""
+                label="Email"
+                variant="bordered"
+                type="email"
+                placeholder="Enter your email"
+                {...register("email")}
+                isInvalid={!!errors.email}
+                errorMessage={errors.email?.message as string}
+              />
 
-            <Button
-              fullWidth
-              type="submit"
-              className="bg-pink-400"
-              isDisabled={!isValid || isSubmitting}
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center">
-                  <span className="loader mr-2"></span>
-                  Registering...
-                </span>
-              ) : (
-                "Register"
-              )}
-            </Button>
+              <div>
+                {/* Password Input */}
+                <div className="relative mb-4">
+                  <Input
+                    defaultValue=""
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    variant="bordered"
+                    placeholder="Enter your password"
+                    isInvalid={!!errors.password}
+                    errorMessage={errors.password?.message as string}
+                    {...register("password")}
+                  />
+                  <Button
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-transparent"
+                  >
+                    {showPassword ? (
+                      <IoEyeOff size={18} />
+                    ) : (
+                      <IoEye size={18} />
+                    )}
+                  </Button>
+                </div>
+
+                {/* Confirm Password Input */}
+                <div className="relative">
+                  <Input
+                    defaultValue=""
+                    label="Confirm Password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    variant="bordered"
+                    placeholder="Confirm your password"
+                    isInvalid={!!errors.confirmPassword}
+                    errorMessage={errors.confirmPassword?.message as string}
+                    {...register("confirmPassword")}
+                  />
+                  <Button
+                    onPress={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-transparent"
+                  >
+                    {showConfirmPassword ? (
+                      <IoEyeOff size={18} />
+                    ) : (
+                      <IoEye size={18} />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <Button
+                fullWidth
+                type="submit"
+                className="bg-pink-400"
+                isDisabled={!isValid || isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center">
+                    <span className="loader mr-2"></span>
+                    Registering...
+                  </span>
+                ) : (
+                  "Register"
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </CardBody>

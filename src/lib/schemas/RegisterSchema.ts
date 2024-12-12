@@ -12,6 +12,15 @@ export const registerSchema = z
       message: "Password must be at least 6 characters",
     }),
     confirmPassword: z.string(),
+    gender: z.string().min(1, {
+      message: "You must select a gender",
+    }),
+    division: z.string().min(1, {
+      message: "You must select a division",
+    }),
+    district: z.string().min(1, {
+      message: "You must select a district",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",
