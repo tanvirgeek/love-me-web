@@ -15,9 +15,6 @@ export const registerSchema = z
     gender: z.string().min(1, {
       message: "You must select a gender",
     }),
-    division: z.string().min(1, {
-      message: "You must select a division",
-    }),
     district: z.string().min(1, {
       message: "You must select a district",
     }),

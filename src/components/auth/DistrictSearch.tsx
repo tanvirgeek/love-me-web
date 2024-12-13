@@ -74,9 +74,13 @@ const districts: District[] = [
 
 interface DistrictSearchProps {
   onSelect: (district: District) => void;
+  errorMessage?: string; // Add error message prop
 }
 
-const DistrictSearch: React.FC<DistrictSearchProps> = ({ onSelect }) => {
+const DistrictSearch: React.FC<DistrictSearchProps> = ({
+  onSelect,
+  errorMessage,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
     null
@@ -141,6 +145,11 @@ const DistrictSearch: React.FC<DistrictSearchProps> = ({ onSelect }) => {
             )}
           </ul>
         </div>
+      )}
+
+      {/* Show error message if there's one */}
+      {errorMessage && (
+        <p className="text-red-500 text-xs mt-2">{errorMessage}</p>
       )}
     </div>
   );
