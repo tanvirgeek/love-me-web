@@ -14,11 +14,8 @@ const UserMenu = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth); // Signs the user out of Firebase
-      console.log("User logged out");
-      window.location.reload();
-      // You can also add any additional logic here, e.g., redirecting the user
-      // Example: Redirect to login page after logout
-      // window.location.href = "/login"; // Or use Next.js routing if you prefer
+      await fetch("/api/logout"); // Call the logout API route to delete the cookie
+      router.push("/login"); // Redirect to login page after logout
     } catch (error) {
       if (error instanceof Error) {
         console.error("Logout error:", error.message);
