@@ -7,6 +7,12 @@ import {
   Input,
   Select,
   SelectItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@nextui-org/react";
 import React, { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase/firebase";
@@ -14,10 +20,15 @@ import { GiPadlock } from "react-icons/gi";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterSchema } from "@/lib/schemas/RegisterSchema";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import { CreateUserInput } from "@/lib/types";
 import DistrictSearch, { District } from "./DistrictSearch";
+import { useRouter } from "next/navigation";
 
 // The RegisterForm Component
 const RegisterForm = () => {
@@ -28,6 +39,7 @@ const RegisterForm = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
     null
   );
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const genders = [
     { key: "Male", label: "Male" },
@@ -44,6 +56,82 @@ const RegisterForm = () => {
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
   });
+
+  const router = useRouter();
+  const provider = new GoogleAuthProvider();
+
+  // Map of districts to divisions
+  const districtToDivision: { [key: string]: string } = {
+    Bagerhat: "Khulna",
+    Bandarban: "Chattogram",
+    Barguna: "Barishal",
+    Barishal: "Barishal",
+    Bhola: "Barishal",
+    Bogra: "Rajshahi",
+    Brahmanbaria: "Chattogram",
+    Chandpur: "Chattogram",
+    "Chapai Nawabganj": "Rajshahi",
+    Chattogram: "Chattogram",
+    Chuadanga: "Khulna",
+    "Cox's Bazar": "Chattogram",
+    Cumilla: "Chattogram",
+    Dhaka: "Dhaka",
+    Dinajpur: "Rangpur",
+    Faridpur: "Dhaka",
+    Feni: "Chattogram",
+    Gaibandha: "Rangpur",
+    Gazipur: "Dhaka",
+    Gopalganj: "Dhaka",
+    Habiganj: "Sylhet",
+    Jamalpur: "Mymensingh",
+    Jashore: "Khulna",
+    Jhalokati: "Barishal",
+    Jhenaidah: "Khulna",
+    Joypurhat: "Rajshahi",
+    Khagrachari: "Chattogram",
+    Khulna: "Khulna",
+    Kishoreganj: "Dhaka",
+    Kurigram: "Rangpur",
+    Kushtia: "Khulna",
+    Lakshmipur: "Chattogram",
+    Lalmonirhat: "Rangpur",
+    Madaripur: "Dhaka",
+    Magura: "Khulna",
+    Manikganj: "Dhaka",
+    Meherpur: "Khulna",
+    Moulvibazar: "Sylhet",
+    Munshiganj: "Dhaka",
+    Mymensingh: "Mymensingh",
+    Naogaon: "Rajshahi",
+    Narail: "Khulna",
+    Narayanganj: "Dhaka",
+    Narsingdi: "Dhaka",
+    Natore: "Rajshahi",
+    Netrokona: "Mymensingh",
+    Nilphamari: "Rangpur",
+    Noakhali: "Chattogram",
+    Pabna: "Rajshahi",
+    Panchagarh: "Rangpur",
+    Patuakhali: "Barishal",
+    Pirojpur: "Barishal",
+    Rajbari: "Dhaka",
+    Rajshahi: "Rajshahi",
+    Rangamati: "Chattogram",
+    Rangpur: "Rangpur",
+    Satkhira: "Khulna",
+    Shariatpur: "Dhaka",
+    Sherpur: "Mymensingh",
+    Sirajganj: "Rajshahi",
+    Sunamganj: "Sylhet",
+    Sylhet: "Sylhet",
+    Tangail: "Dhaka",
+    Thakurgaon: "Rangpur",
+  };
+
+  // Function to get the division from a district
+  function getDivision(districtKey: string): string | undefined {
+    return districtToDivision[districtKey];
+  }
 
   const onsubmit = async (data: RegisterSchema) => {
     setErrorMessage(null);
@@ -71,9 +159,12 @@ const RegisterForm = () => {
         firebaseUserId: user.uid,
         name: data.name,
         email: data.email,
+        district: data.district,
+        gender: data.gender,
+        division: getDivision(data.district) || "",
       });
 
-      setMessage("Registration successful!");
+      router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes("email-already-in-use")) {
@@ -102,6 +193,30 @@ const RegisterForm = () => {
 
     return responseData;
   }
+
+  const handleGoogleSignUP = async () => {
+    try {
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      // await sendEmailVerification(user);
+      await createUser({
+        firebaseUserId: user.uid,
+        name: user.displayName || "",
+        email: user.email || "",
+        district: "-",
+        gender: "-",
+        division: "-",
+      });
+      console.log("Google Login Success");
+      router.replace("/dashboard");
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("An unknown error occurred");
+      }
+    }
+  };
 
   // Trigger validation when the selected district changes
   useEffect(() => {
@@ -240,11 +355,13 @@ const RegisterForm = () => {
                   "Register"
                 )}
               </Button>
+              <Button color="primary" onPress={handleGoogleSignUP}>
+                Sign Up with Google
+              </Button>
             </div>
           </div>
         </form>
       </CardBody>
-
       {/* Error or Success Message */}
       {message && <p className="text-green-500 px-4 py-2">{message}</p>}
       {errorMessage && <p className="text-red-500 px-4 py-2">{errorMessage}</p>}

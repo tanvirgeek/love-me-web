@@ -25,3 +25,14 @@ export const registerSchema = z
   });
 
 export type RegisterSchema = z.infer<typeof registerSchema>;
+
+export const registerSchemaGoogle = z.object({
+  gender: z.string().min(1, {
+    message: "You must select a gender",
+  }),
+  district: z.string().min(1, {
+    message: "You must select a district",
+  }),
+});
+
+export type RegisterSchemaGoogle = z.infer<typeof registerSchemaGoogle>;

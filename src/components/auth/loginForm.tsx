@@ -94,7 +94,7 @@ const LoginForm = () => {
   const handleLogin = async (data: LoginSchema) => {
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
-      router.push("/dashboard");
+      router.replace("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message);

@@ -8,6 +8,9 @@ export type CreateUserInput = Prisma.UserCreateInput;
 export const CreateUserSchema = z.object({
   firebaseUserId: z.string(),
   name: z.string(),
+  gender: z.string(),
+  district: z.string(),
+  division: z.string(),
   email: z.string().email(),
   role: z.number().optional().default(0), // Default value for role
 });
