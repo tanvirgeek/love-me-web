@@ -80,6 +80,16 @@ const LoginForm = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       console.log("Google Login Success");
+
+      const token = await result.user.getIdToken();
+
+      // Send the token to the server and store it in an HTTP-only cookie
+      await fetch("/api/set-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
@@ -93,7 +103,19 @@ const LoginForm = () => {
   // Handle Email/Password Login
   const handleLogin = async (data: LoginSchema) => {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const token = await userCredential.user.getIdToken();
+
+      // Send the token to the server and store it in an HTTP-only cookie
+      await fetch("/api/set-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
       router.replace("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
