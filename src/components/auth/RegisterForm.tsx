@@ -7,12 +7,6 @@ import {
   Input,
   Select,
   SelectItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
 } from "@nextui-org/react";
 import React, { useState, useEffect } from "react";
 import { auth } from "@/lib/firebase/firebase";
@@ -39,7 +33,6 @@ const RegisterForm = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
     null
   );
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const genders = [
     { key: "Male", label: "Male" },
@@ -187,7 +180,10 @@ const RegisterForm = () => {
     }
   };
 
-  async function createUser(data: CreateUserInput) {
+  async function createUser(
+    data: CreateUserInput,
+    isGoogleLogin: boolean = false
+  ) {
     const response = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -196,8 +192,10 @@ const RegisterForm = () => {
 
     const responseData = await response.json();
 
-    if (!response.ok) {
-      throw new Error(responseData.error);
+    if (!isGoogleLogin) {
+      if (!response.ok) {
+        throw new Error(responseData.error);
+      }
     }
 
     return responseData;
@@ -208,14 +206,17 @@ const RegisterForm = () => {
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
       // await sendEmailVerification(user);
-      await createUser({
-        firebaseUserId: user.uid,
-        name: user.displayName || "",
-        email: user.email || "",
-        district: "-",
-        gender: "-",
-        division: "-",
-      });
+      await createUser(
+        {
+          firebaseUserId: user.uid,
+          name: user.displayName || "",
+          email: user.email || "",
+          district: "-",
+          gender: "-",
+          division: "-",
+        },
+        true
+      );
       console.log("Google Login Success");
       const token = await userCredential.user.getIdToken();
 

@@ -27,6 +27,7 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase/firebase";
+import { CreateUserInput } from "@/lib/types";
 
 const LoginForm = () => {
   const {
@@ -90,6 +91,18 @@ const LoginForm = () => {
         body: JSON.stringify({ token }),
       });
 
+      await createUser(
+        {
+          firebaseUserId: result.user.uid,
+          name: result.user.displayName || "-",
+          email: result.user.email || "-",
+          gender: "-",
+          district: "-",
+          division: "-",
+        },
+        true
+      );
+
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
@@ -99,6 +112,27 @@ const LoginForm = () => {
       }
     }
   };
+
+  async function createUser(
+    data: CreateUserInput,
+    isGoogleLogin: boolean = false
+  ) {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await response.json();
+
+    if (!isGoogleLogin) {
+      if (!response.ok) {
+        throw new Error(responseData.error);
+      }
+    }
+
+    return responseData;
+  }
 
   // Handle Email/Password Login
   const handleLogin = async (data: LoginSchema) => {
