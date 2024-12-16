@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase/firebase";
 import { useAuthStore } from "@/store/useAuthStore";
+import { fetchUser } from "@/lib/apiCalls";
 
 export default function AuthGuard({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,9 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
         setIsAuthenticated(false);
       } else {
         setIsAuthenticated(true);
+
+        fetchUser(user.uid)
+
         if (pathName === "/login" || pathName === "/register") {
           router.push("/dashboard");
         } else {

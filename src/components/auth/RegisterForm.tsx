@@ -157,16 +157,6 @@ const RegisterForm = () => {
         division: getDivision(data.district) || "",
       });
 
-      const token = await userCredential.user.getIdToken();
-      const refreshToken = userCredential.user.refreshToken;
-
-      // Send the token to the server and store it in an HTTP-only cookie
-      await fetch("/api/set-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, refreshToken }),
-      });
-
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof Error) {
@@ -219,15 +209,7 @@ const RegisterForm = () => {
         true
       );
       console.log("Google Login Success");
-      const token = await userCredential.user.getIdToken();
-      const refreshToken = userCredential.user.refreshToken;
-
-      // Send the token to the server and store it in an HTTP-only cookie
-      await fetch("/api/set-token", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, refreshToken }),
-      });
+      
 
       router.replace("/dashboard");
     } catch (error) {

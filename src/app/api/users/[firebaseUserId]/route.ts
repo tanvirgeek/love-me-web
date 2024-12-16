@@ -18,6 +18,7 @@ export async function GET(
   try {
     const userInfo = await prisma.user.findUnique({
       where: { firebaseUserId },
+      include: { userInfo: true, favoritedBy: true, favorites: true },
     });
 
     console.log(userInfo);
