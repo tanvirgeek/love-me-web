@@ -83,12 +83,13 @@ const LoginForm = () => {
       console.log("Google Login Success");
 
       const token = await result.user.getIdToken();
+      const refreshToken = result.user.refreshToken
 
       // Send the token to the server and store it in an HTTP-only cookie
       await fetch("/api/set-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, refreshToken }),
       });
 
       await createUser(
@@ -143,12 +144,13 @@ const LoginForm = () => {
         data.password
       );
       const token = await userCredential.user.getIdToken();
+      const refreshToken = userCredential.user.refreshToken;
 
       // Send the token to the server and store it in an HTTP-only cookie
       await fetch("/api/set-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, refreshToken }),
       });
       router.replace("/dashboard");
     } catch (error) {

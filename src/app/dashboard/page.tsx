@@ -1,42 +1,51 @@
 import React from "react";
-import { cookies } from "next/headers";
-import { auth } from "@/lib/firebase/firebaseAdmin";
+import firebase from "firebase-admin";
+import { verifyTokenAndFetchUserInfo } from "@/utils/authUtils";
 
 const DashboardPage = async () => {
-  const cookieStore = await cookies(); // Await the cookies() call
-  const token = cookieStore.get("token")?.value;
+  const { userInfo, error, message } = await verifyTokenAndFetchUserInfo();
 
-  if (!token) {
-    // Handle unauthorized access (redirect to login)
+  if (error) {
     return (
       <div>
-        <h1>Unauthorized</h1>
-        <p>Please log in to access this page.</p>
+        <h1>{error}</h1>
+        <p>{message}</p>
       </div>
     );
   }
 
-  try {
-    // Verify the token with Firebase Admin SDK to get the user's UID
-    const decodedToken = await auth.verifyIdToken(token);
-    const { uid } = decodedToken;
-
-    return (
-      <div>
-        <h1>Welcome to your dashboard</h1>
-        <p>Your UID: {uid}</p>
-      </div>
-    );
-  } catch (error) {
-    console.error("Token verification failed:", error);
-
-    return (
-      <div>
-        <h1>Authentication Failed</h1>
-        <p>There was an issue verifying your session. Please log in again.</p>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h1>User Details</h1>
+      <p>Name: {userInfo.name}</p>
+      <p>Email: {userInfo.email}</p>
+      {/* Render other user details here */}
+    </div>
+  );
 };
+
+// Function to refresh the ID token using the refresh token
+async function refreshIdToken(refreshToken: string): Promise<string> {
+  const app =
+    firebase.apps.length > 0 ? firebase.app() : firebase.initializeApp();
+  const authClient = app.auth();
+
+  const user = await authClient.verifyIdToken(refreshToken); // Using refresh token to get a new ID token
+  const newToken = await user.getIdToken();
+
+  return newToken;
+}
+
+async function fetchUserInfo(firebaseUserId: string): Promise<any> {
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/${firebaseUserId}`;
+
+  const response = await fetch(apiUrl, { cache: "no-store" });
+
+  if (!response.ok) {
+    throw new Error(`Error fetching user info: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
 
 export default DashboardPage;
