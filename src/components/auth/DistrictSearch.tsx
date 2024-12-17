@@ -5,7 +5,7 @@ export interface District {
   label: string;
 }
 
-const districts: District[] = [
+export const districts: District[] = [
   { key: "Bagerhat", label: "Bagerhat" },
   { key: "Bandarban", label: "Bandarban" },
   { key: "Barguna", label: "Barguna" },

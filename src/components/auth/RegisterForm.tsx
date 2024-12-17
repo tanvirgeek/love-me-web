@@ -24,6 +24,11 @@ import { CreateUserInput } from "@/lib/types";
 import DistrictSearch, { District } from "./DistrictSearch";
 import { useRouter } from "next/navigation";
 
+export const genders = [
+  { key: "Male", label: "Male" },
+  { key: "Female", label: "Female" },
+];
+
 // The RegisterForm Component
 const RegisterForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -33,11 +38,6 @@ const RegisterForm = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
     null
   );
-
-  const genders = [
-    { key: "Male", label: "Male" },
-    { key: "Female", label: "Female" },
-  ];
 
   const {
     register,
@@ -52,74 +52,6 @@ const RegisterForm = () => {
 
   const router = useRouter();
   const provider = new GoogleAuthProvider();
-
-  // Map of districts to divisions
-  const districtToDivision: { [key: string]: string } = {
-    Bagerhat: "Khulna",
-    Bandarban: "Chattogram",
-    Barguna: "Barishal",
-    Barishal: "Barishal",
-    Bhola: "Barishal",
-    Bogra: "Rajshahi",
-    Brahmanbaria: "Chattogram",
-    Chandpur: "Chattogram",
-    "Chapai Nawabganj": "Rajshahi",
-    Chattogram: "Chattogram",
-    Chuadanga: "Khulna",
-    "Cox's Bazar": "Chattogram",
-    Cumilla: "Chattogram",
-    Dhaka: "Dhaka",
-    Dinajpur: "Rangpur",
-    Faridpur: "Dhaka",
-    Feni: "Chattogram",
-    Gaibandha: "Rangpur",
-    Gazipur: "Dhaka",
-    Gopalganj: "Dhaka",
-    Habiganj: "Sylhet",
-    Jamalpur: "Mymensingh",
-    Jashore: "Khulna",
-    Jhalokati: "Barishal",
-    Jhenaidah: "Khulna",
-    Joypurhat: "Rajshahi",
-    Khagrachari: "Chattogram",
-    Khulna: "Khulna",
-    Kishoreganj: "Dhaka",
-    Kurigram: "Rangpur",
-    Kushtia: "Khulna",
-    Lakshmipur: "Chattogram",
-    Lalmonirhat: "Rangpur",
-    Madaripur: "Dhaka",
-    Magura: "Khulna",
-    Manikganj: "Dhaka",
-    Meherpur: "Khulna",
-    Moulvibazar: "Sylhet",
-    Munshiganj: "Dhaka",
-    Mymensingh: "Mymensingh",
-    Naogaon: "Rajshahi",
-    Narail: "Khulna",
-    Narayanganj: "Dhaka",
-    Narsingdi: "Dhaka",
-    Natore: "Rajshahi",
-    Netrokona: "Mymensingh",
-    Nilphamari: "Rangpur",
-    Noakhali: "Chattogram",
-    Pabna: "Rajshahi",
-    Panchagarh: "Rangpur",
-    Patuakhali: "Barishal",
-    Pirojpur: "Barishal",
-    Rajbari: "Dhaka",
-    Rajshahi: "Rajshahi",
-    Rangamati: "Chattogram",
-    Rangpur: "Rangpur",
-    Satkhira: "Khulna",
-    Shariatpur: "Dhaka",
-    Sherpur: "Mymensingh",
-    Sirajganj: "Rajshahi",
-    Sunamganj: "Sylhet",
-    Sylhet: "Sylhet",
-    Tangail: "Dhaka",
-    Thakurgaon: "Rangpur",
-  };
 
   // Function to get the division from a district
   function getDivision(districtKey: string): string | undefined {
@@ -209,7 +141,6 @@ const RegisterForm = () => {
         true
       );
       console.log("Google Login Success");
-      
 
       router.replace("/dashboard");
     } catch (error) {
@@ -370,6 +301,73 @@ const RegisterForm = () => {
       {errorMessage && <p className="text-red-500 px-4 py-2">{errorMessage}</p>}
     </Card>
   );
+};
+
+export const districtToDivision: { [key: string]: string } = {
+  Bagerhat: "Khulna",
+  Bandarban: "Chattogram",
+  Barguna: "Barishal",
+  Barishal: "Barishal",
+  Bhola: "Barishal",
+  Bogra: "Rajshahi",
+  Brahmanbaria: "Chattogram",
+  Chandpur: "Chattogram",
+  "Chapai Nawabganj": "Rajshahi",
+  Chattogram: "Chattogram",
+  Chuadanga: "Khulna",
+  "Cox's Bazar": "Chattogram",
+  Cumilla: "Chattogram",
+  Dhaka: "Dhaka",
+  Dinajpur: "Rangpur",
+  Faridpur: "Dhaka",
+  Feni: "Chattogram",
+  Gaibandha: "Rangpur",
+  Gazipur: "Dhaka",
+  Gopalganj: "Dhaka",
+  Habiganj: "Sylhet",
+  Jamalpur: "Mymensingh",
+  Jashore: "Khulna",
+  Jhalokati: "Barishal",
+  Jhenaidah: "Khulna",
+  Joypurhat: "Rajshahi",
+  Khagrachari: "Chattogram",
+  Khulna: "Khulna",
+  Kishoreganj: "Dhaka",
+  Kurigram: "Rangpur",
+  Kushtia: "Khulna",
+  Lakshmipur: "Chattogram",
+  Lalmonirhat: "Rangpur",
+  Madaripur: "Dhaka",
+  Magura: "Khulna",
+  Manikganj: "Dhaka",
+  Meherpur: "Khulna",
+  Moulvibazar: "Sylhet",
+  Munshiganj: "Dhaka",
+  Mymensingh: "Mymensingh",
+  Naogaon: "Rajshahi",
+  Narail: "Khulna",
+  Narayanganj: "Dhaka",
+  Narsingdi: "Dhaka",
+  Natore: "Rajshahi",
+  Netrokona: "Mymensingh",
+  Nilphamari: "Rangpur",
+  Noakhali: "Chattogram",
+  Pabna: "Rajshahi",
+  Panchagarh: "Rangpur",
+  Patuakhali: "Barishal",
+  Pirojpur: "Barishal",
+  Rajbari: "Dhaka",
+  Rajshahi: "Rajshahi",
+  Rangamati: "Chattogram",
+  Rangpur: "Rangpur",
+  Satkhira: "Khulna",
+  Shariatpur: "Dhaka",
+  Sherpur: "Mymensingh",
+  Sirajganj: "Rajshahi",
+  Sunamganj: "Sylhet",
+  Sylhet: "Sylhet",
+  Tangail: "Dhaka",
+  Thakurgaon: "Rangpur",
 };
 
 export default RegisterForm;
